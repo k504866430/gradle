@@ -17,9 +17,11 @@
 package org.gradle.internal.logging.serializer
 
 import org.gradle.api.logging.LogLevel
+import org.gradle.internal.logging.events.CompactBuildOperationDescriptor
 import org.gradle.internal.logging.events.OperationIdentifier
 import org.gradle.internal.logging.events.StyledTextOutputEvent
 import org.gradle.internal.logging.text.StyledTextOutput
+import org.gradle.internal.progress.BuildOperationType
 import org.gradle.internal.serialize.BaseSerializerFactory
 import org.gradle.internal.serialize.ListSerializer
 import org.gradle.internal.serialize.Serializer
@@ -32,17 +34,19 @@ class StyledTextOutputEventSerializerTest extends LogSerializerSpec {
     def setup() {
         BaseSerializerFactory serializerFactory = new BaseSerializerFactory()
         Serializer<LogLevel> logLevelSerializer = serializerFactory.getSerializerFor(LogLevel.class)
+        Serializer<CompactBuildOperationDescriptor> buildOperationDescriptorSerializer = serializerFactory.getSerializerFor(CompactBuildOperationDescriptor.class)
         serializer = new StyledTextOutputEventSerializer(
             logLevelSerializer,
             new ListSerializer<StyledTextOutputEvent.Span>(
-                new SpanSerializer(serializerFactory.getSerializerFor(StyledTextOutput.Style.class))))
+                new SpanSerializer(serializerFactory.getSerializerFor(StyledTextOutput.Style.class))),
+            buildOperationDescriptorSerializer)
     }
 
     def "can serialize StyledTextOutputEvent messages"() {
         given:
         List spans = [new StyledTextOutputEvent.Span(StyledTextOutput.Style.Description, "description"),
                       new StyledTextOutputEvent.Span(StyledTextOutput.Style.Error, "error")]
-        def event = new StyledTextOutputEvent(TIMESTAMP, CATEGORY, LogLevel.LIFECYCLE, new OperationIdentifier(42L), spans)
+        def event = new StyledTextOutputEvent(TIMESTAMP, CATEGORY, LogLevel.LIFECYCLE, new CompactBuildOperationDescriptor(new OperationIdentifier(42L), BuildOperationType.TASK), spans)
 
         when:
         def result = serialize(event, serializer)
@@ -57,7 +61,8 @@ class StyledTextOutputEventSerializerTest extends LogSerializerSpec {
         result.spans[0].text == "description"
         result.spans[1].style == StyledTextOutput.Style.Error
         result.spans[1].text == "error"
-        result.buildOperationId == new OperationIdentifier(42L)
+        result.buildOperationDescriptor.operationId == new OperationIdentifier(42L)
+        result.buildOperationDescriptor.operationType == BuildOperationType.TASK
     }
 
     def "can serialize StyledTextOutputEvent messages with null build operation id"() {
@@ -74,6 +79,6 @@ class StyledTextOutputEventSerializerTest extends LogSerializerSpec {
         result.logLevel == LogLevel.LIFECYCLE
         result.spans.size() == 1
         result.spans[0].text == "description"
-        result.buildOperationId == null
+        result.buildOperationDescriptor == null
     }
 }

@@ -17,8 +17,8 @@
 package org.gradle.internal.logging.serializer;
 
 import org.gradle.api.logging.LogLevel;
+import org.gradle.internal.logging.events.CompactBuildOperationDescriptor;
 import org.gradle.internal.logging.events.StyledTextOutputEvent;
-import org.gradle.internal.logging.events.OperationIdentifier;
 import org.gradle.internal.serialize.Decoder;
 import org.gradle.internal.serialize.Encoder;
 import org.gradle.internal.serialize.Serializer;
@@ -28,10 +28,12 @@ import java.util.List;
 public class StyledTextOutputEventSerializer implements Serializer<StyledTextOutputEvent> {
     private final Serializer<LogLevel> logLevelSerializer;
     private final Serializer<List<StyledTextOutputEvent.Span>> spanSerializer;
+    private final Serializer<CompactBuildOperationDescriptor> compactBuildOperationDescriptorSerializer;
 
-    public StyledTextOutputEventSerializer(Serializer<LogLevel> logLevelSerializer, Serializer<List<StyledTextOutputEvent.Span>> spanSerializer) {
+    public StyledTextOutputEventSerializer(Serializer<LogLevel> logLevelSerializer, Serializer<List<StyledTextOutputEvent.Span>> spanSerializer, Serializer<CompactBuildOperationDescriptor> compactBuildOperationDescriptorSerializer) {
         this.logLevelSerializer = logLevelSerializer;
         this.spanSerializer = spanSerializer;
+        this.compactBuildOperationDescriptorSerializer = compactBuildOperationDescriptorSerializer;
     }
 
     @Override
@@ -39,12 +41,7 @@ public class StyledTextOutputEventSerializer implements Serializer<StyledTextOut
         encoder.writeLong(event.getTimestamp());
         encoder.writeString(event.getCategory());
         logLevelSerializer.write(encoder, event.getLogLevel());
-        if (event.getBuildOperationId() == null) {
-            encoder.writeBoolean(false);
-        } else {
-            encoder.writeBoolean(true);
-            encoder.writeSmallLong(((OperationIdentifier) event.getBuildOperationId()).getId());
-        }
+        compactBuildOperationDescriptorSerializer.write(encoder, event.getBuildOperationDescriptor());
         spanSerializer.write(encoder, event.getSpans());
     }
 
@@ -53,9 +50,9 @@ public class StyledTextOutputEventSerializer implements Serializer<StyledTextOut
         long timestamp = decoder.readLong();
         String category = decoder.readString();
         LogLevel logLevel = logLevelSerializer.read(decoder);
-        Object buildOperationId = decoder.readBoolean() ? new OperationIdentifier(decoder.readSmallLong()) : null;
+        CompactBuildOperationDescriptor buildOperationDescriptor = compactBuildOperationDescriptorSerializer.read(decoder);
         List<StyledTextOutputEvent.Span> spans = spanSerializer.read(decoder);
-        return new StyledTextOutputEvent(timestamp, category, logLevel, buildOperationId, spans);
+        return new StyledTextOutputEvent(timestamp, category, logLevel, buildOperationDescriptor, spans);
     }
 }
 

@@ -21,11 +21,11 @@ import org.gradle.api.logging.LogLevel;
 import org.gradle.internal.logging.text.StyledTextOutput;
 
 public abstract class RenderableOutputEvent extends CategorisedOutputEvent {
-    private Object buildOperationId;
+    private final CompactBuildOperationDescriptor buildOperationDescriptor;
 
-    protected RenderableOutputEvent(long timestamp, String category, LogLevel logLevel, @Nullable Object buildOperationId) {
+    protected RenderableOutputEvent(long timestamp, String category, LogLevel logLevel, @Nullable CompactBuildOperationDescriptor buildOperationDescriptor) {
         super(timestamp, category, logLevel);
-        this.buildOperationId = buildOperationId;
+        this.buildOperationDescriptor = buildOperationDescriptor;
     }
 
     /**
@@ -38,7 +38,7 @@ public abstract class RenderableOutputEvent extends CategorisedOutputEvent {
     public abstract void render(StyledTextOutput output);
 
     @Nullable
-    public Object getBuildOperationId() {
-        return buildOperationId;
+    public CompactBuildOperationDescriptor getBuildOperationDescriptor() {
+        return buildOperationDescriptor;
     }
 }

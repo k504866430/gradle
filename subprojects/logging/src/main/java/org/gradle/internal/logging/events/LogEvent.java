@@ -19,6 +19,7 @@ package org.gradle.internal.logging.events;
 import org.gradle.api.Nullable;
 import org.gradle.api.logging.LogLevel;
 import org.gradle.internal.logging.text.StyledTextOutput;
+import org.gradle.internal.progress.BuildOperationType;
 
 public class LogEvent extends RenderableOutputEvent {
     private final String message;
@@ -29,7 +30,11 @@ public class LogEvent extends RenderableOutputEvent {
     }
 
     public LogEvent(long timestamp, String category, LogLevel logLevel, String message, @Nullable Throwable throwable, @Nullable Object operationIdentifier) {
-        super(timestamp, category, logLevel, operationIdentifier);
+        this(timestamp, category, logLevel, message, throwable, operationIdentifier == null ? null : new CompactBuildOperationDescriptor(operationIdentifier, BuildOperationType.UNCATEGORIZED));
+    }
+
+    public LogEvent(long timestamp, String category, LogLevel logLevel, String message, @Nullable Throwable throwable, @Nullable CompactBuildOperationDescriptor buildOperationDescriptor) {
+        super(timestamp, category, logLevel, buildOperationDescriptor);
         this.message = message;
         this.throwable = throwable;
     }

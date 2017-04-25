@@ -220,7 +220,7 @@ public class DefaultBuildOperationExecutor implements BuildOperationExecutor, St
     @Nullable
     private ProgressLogger maybeStartProgressLogging(DefaultBuildOperationState currentOperation) {
         if (providesProgressLogging(currentOperation)) {
-            ProgressLogger progressLogger = progressLoggerFactory.newOperation(DefaultBuildOperationExecutor.class, (OperationIdentifier) currentOperation.getId());
+            ProgressLogger progressLogger = progressLoggerFactory.newOperation(DefaultBuildOperationExecutor.class, currentOperation.getDescription());
             progressLogger.setDescription(currentOperation.getDescription().getDisplayName());
             progressLogger.setShortDescription(currentOperation.getDescription().getProgressDisplayName());
             progressLogger.started();

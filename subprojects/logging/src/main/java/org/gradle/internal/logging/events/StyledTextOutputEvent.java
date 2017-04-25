@@ -28,12 +28,12 @@ import java.util.List;
 public class StyledTextOutputEvent extends RenderableOutputEvent {
     private final List<Span> spans;
 
-    public StyledTextOutputEvent(long timestamp, String category, LogLevel logLevel, @Nullable Object buildOperationIdentifier, String text) {
-        this(timestamp, category, logLevel, buildOperationIdentifier, Collections.singletonList(new Span(StyledTextOutput.Style.Normal, text)));
+    public StyledTextOutputEvent(long timestamp, String category, LogLevel logLevel, @Nullable CompactBuildOperationDescriptor buildOperationDescriptor, String text) {
+        this(timestamp, category, logLevel, buildOperationDescriptor, Collections.singletonList(new Span(StyledTextOutput.Style.Normal, text)));
     }
 
-    public StyledTextOutputEvent(long timestamp, String category, LogLevel logLevel, @Nullable Object buildOperationIdentifier, List<Span> spans) {
-        super(timestamp, category, logLevel, buildOperationIdentifier);
+    public StyledTextOutputEvent(long timestamp, String category, LogLevel logLevel, @Nullable CompactBuildOperationDescriptor buildOperationDescriptor, List<Span> spans) {
+        super(timestamp, category, logLevel, buildOperationDescriptor);
         this.spans = new ArrayList<Span>(spans);
     }
 
@@ -55,7 +55,7 @@ public class StyledTextOutputEvent extends RenderableOutputEvent {
     }
 
     public StyledTextOutputEvent withLogLevel(LogLevel logLevel) {
-        return new StyledTextOutputEvent(getTimestamp(), getCategory(), logLevel, getBuildOperationId(), spans);
+        return new StyledTextOutputEvent(getTimestamp(), getCategory(), logLevel, getBuildOperationDescriptor(), spans);
     }
 
     public List<Span> getSpans() {

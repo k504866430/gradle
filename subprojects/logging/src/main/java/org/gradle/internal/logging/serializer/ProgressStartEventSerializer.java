@@ -16,6 +16,7 @@
 
 package org.gradle.internal.logging.serializer;
 
+import org.gradle.internal.logging.events.CompactBuildOperationDescriptor;
 import org.gradle.internal.logging.events.OperationIdentifier;
 import org.gradle.internal.logging.events.ProgressStartEvent;
 import org.gradle.internal.serialize.Decoder;
@@ -23,6 +24,12 @@ import org.gradle.internal.serialize.Encoder;
 import org.gradle.internal.serialize.Serializer;
 
 public class ProgressStartEventSerializer implements Serializer<ProgressStartEvent> {
+    private final Serializer<CompactBuildOperationDescriptor> buildOperationDescriptorSerializer;
+
+    public ProgressStartEventSerializer(Serializer<CompactBuildOperationDescriptor> buildOperationDescriptorSerializer) {
+        this.buildOperationDescriptorSerializer = buildOperationDescriptorSerializer;
+    }
+
     @Override
     public void write(Encoder encoder, ProgressStartEvent event) throws Exception {
         encoder.writeSmallLong(event.getProgressOperationId().getId());
@@ -38,12 +45,7 @@ public class ProgressStartEventSerializer implements Serializer<ProgressStartEve
         encoder.writeNullableString(event.getShortDescription());
         encoder.writeNullableString(event.getLoggingHeader());
         encoder.writeString(event.getStatus());
-        if (event.getBuildOperationId() == null) {
-            encoder.writeBoolean(false);
-        } else {
-            encoder.writeBoolean(true);
-            encoder.writeSmallLong(((OperationIdentifier) event.getBuildOperationId()).getId());
-        }
+        buildOperationDescriptorSerializer.write(encoder, event.getBuildOperationDescriptor());
     }
 
     @Override
@@ -56,7 +58,7 @@ public class ProgressStartEventSerializer implements Serializer<ProgressStartEve
         String shortDescription = decoder.readNullableString();
         String loggingHeader = decoder.readNullableString();
         String status = decoder.readString();
-        Object buildOperationId = decoder.readBoolean() ? new OperationIdentifier(decoder.readSmallLong()) : null;
-        return new ProgressStartEvent(progressOperationId, parentProgressOperationId, timestamp, category, description, shortDescription, loggingHeader, status, buildOperationId);
+        CompactBuildOperationDescriptor buildOperationDescriptor = buildOperationDescriptorSerializer.read(decoder);
+        return new ProgressStartEvent(progressOperationId, parentProgressOperationId, timestamp, category, description, shortDescription, loggingHeader, status, buildOperationDescriptor);
     }
 }
