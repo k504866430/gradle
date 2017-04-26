@@ -17,6 +17,7 @@
 package org.gradle.workers.internal
 
 import org.gradle.internal.jvm.Jvm
+import org.gradle.workers.IsolationMode
 import spock.lang.Unroll
 
 class WorkerExecutorErrorHandlingIntegrationTest extends AbstractWorkerExecutorIntegrationTest {
@@ -118,12 +119,12 @@ class WorkerExecutorErrorHandlingIntegrationTest extends AbstractWorkerExecutorI
             $alternateRunnable
 
             task runAgainInWorker(type: WorkerTask) {
-                isolationMode = $isolationMode
+                isolationMode = IsolationMode.$isolationMode
                 runnableClass = AlternateRunnable.class
             }
 
             task runInWorker(type: WorkerTask) {
-                isolationMode = $isolationMode
+                isolationMode = IsolationMode.$isolationMode
                 additionalClasspath = files('${parameterJar.name}')
                 foo = new FooWithUnserializableBar()
                 finalizedBy runAgainInWorker
@@ -143,7 +144,7 @@ class WorkerExecutorErrorHandlingIntegrationTest extends AbstractWorkerExecutorI
         assertRunnableExecuted("runAgainInWorker")
 
         where:
-        isolationMode << ISOLATION_MODES
+        isolationMode << [IsolationMode.THREAD, IsolationMode.PROCESS]
     }
 
     @Unroll
@@ -230,6 +231,31 @@ class WorkerExecutorErrorHandlingIntegrationTest extends AbstractWorkerExecutorI
 
         where:
         isolationMode << ISOLATION_MODES
+    }
+
+    @Unroll
+    def "produces a sensible error when worker configuration is incorrect in #isolationMode"() {
+        withRunnableClassInBuildSrc()
+
+        buildFile << """
+            $runnableWithDifferentConstructor
+
+            task runInWorker(type: WorkerTask) {
+                isolationMode = IsolationMode.$isolationMode
+                additionalForkOptions = {
+                    it.systemProperty("FOO", "bar")
+                }
+            }
+        """.stripIndent()
+
+        when:
+        fails("runInWorker")
+
+        then:
+        failureHasCause("The worker system properties cannot be set when using isolation mode $isolationMode")
+
+        where:
+        isolationMode << [IsolationMode.THREAD, IsolationMode.NONE]
     }
 
     String getUnrecognizedOptionError() {
