@@ -18,6 +18,7 @@ package org.gradle.internal.logging.source
 
 import org.gradle.api.logging.LogLevel
 import org.gradle.internal.logging.events.LogLevelChangeEvent
+import org.gradle.internal.logging.events.OperationIdentifier
 import org.gradle.internal.logging.events.OutputEventListener
 import org.gradle.internal.logging.events.StyledTextOutputEvent
 import org.gradle.internal.operations.BuildOperationIdentifierRegistry
@@ -70,7 +71,7 @@ class PrintStreamLoggingSystemTest extends Specification {
 
     def fillsInEventDetails() {
         given:
-        BuildOperationIdentifierRegistry.setCurrentOperationIdentifier(42L)
+        BuildOperationIdentifierRegistry.setCurrentOperationIdentifier(new OperationIdentifier(42L))
 
         when:
         loggingSystem.startCapture()
@@ -82,7 +83,7 @@ class PrintStreamLoggingSystemTest extends Specification {
                 it.category == 'category' &&
                 it.timestamp == 1200 &&
                 it.spans[0].text == withEOL('info') &&
-                it.buildOperationId == 42L
+                it.buildOperationId.id == 42L
         })
 
         cleanup:
