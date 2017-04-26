@@ -16,6 +16,5 @@
 package org.gradle.internal.progress;
 
 public enum BuildOperationType {
-    TASK, UNCATEGORIZED
+    TRANSFORM, UNCATEGORIZED
 }
-

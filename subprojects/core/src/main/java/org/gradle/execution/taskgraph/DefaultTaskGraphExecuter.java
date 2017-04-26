@@ -256,7 +256,7 @@ public class DefaultTaskGraphExecuter implements TaskGraphExecuter {
                 public BuildOperationDescriptor.Builder description() {
                     TaskOperationDescriptor taskOperation = new TaskOperationDescriptor(task);
                     return BuildOperationDescriptor.displayName("Task " + task.getIdentityPath())
-                        .operationType(BuildOperationType.TASK)
+                        .operationType(BuildOperationType.TRANSFORM)
                         .name(task.getIdentityPath().toString())
                         .details(taskOperation).parent(parentOperation);
                 }

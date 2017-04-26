@@ -38,7 +38,7 @@ class ProgressStartEventSerializerTest extends LogSerializerSpec {
 
     def "can serialize ProgressStartEvent messages"() {
         given:
-        def event = new ProgressStartEvent(OPERATION_ID, new OperationIdentifier(5678L), TIMESTAMP, CATEGORY, DESCRIPTION, "short", "header", "status", new OperationIdentifier(42L), BuildOperationType.TASK)
+        def event = new ProgressStartEvent(OPERATION_ID, new OperationIdentifier(5678L), TIMESTAMP, CATEGORY, DESCRIPTION, "short", "header", "status", new OperationIdentifier(42L), BuildOperationType.TRANSFORM)
 
         when:
         def result = serialize(event, serializer)
@@ -54,7 +54,7 @@ class ProgressStartEventSerializerTest extends LogSerializerSpec {
         result.loggingHeader == "header"
         result.status == "status"
         result.buildOperationId == new OperationIdentifier(42L)
-        result.buildOperationType == BuildOperationType.TASK
+        result.buildOperationType == BuildOperationType.TRANSFORM
     }
 
     def "can serialize ProgressStartEvent messages with empty fields"() {
@@ -75,7 +75,7 @@ class ProgressStartEventSerializerTest extends LogSerializerSpec {
         result.loggingHeader == null
         result.status == ""
         result.buildOperationId == null
-        result.buildOperationType == null
+        result.buildOperationType == event.buildOperationType
     }
 
     def "can serialize build operation ids with large long values"() {
