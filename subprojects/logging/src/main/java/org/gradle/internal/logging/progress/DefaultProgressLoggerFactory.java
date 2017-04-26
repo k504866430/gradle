@@ -17,7 +17,6 @@
 package org.gradle.internal.logging.progress;
 
 import org.gradle.api.Nullable;
-import org.gradle.internal.logging.events.CompactBuildOperationDescriptor;
 import org.gradle.internal.logging.events.OperationIdentifier;
 import org.gradle.internal.logging.events.ProgressCompleteEvent;
 import org.gradle.internal.logging.events.ProgressEvent;
@@ -143,12 +142,23 @@ public class DefaultProgressLoggerFactory implements ProgressLoggerFactory {
                 parent.assertRunning();
             }
             current.set(this);
-            listener.started(new ProgressStartEvent(progressOperationId, parent == null ? null : parent.progressOperationId, timeProvider.getCurrentTime(), category, description, shortDescription, loggingHeader, toStatus(status), createCompactDescriptor(buildOperationDescriptor)));
+            ProgressStartEvent progressStartEvent = new ProgressStartEvent(
+                progressOperationId,
+                parent == null ? null : parent.progressOperationId,
+                timeProvider.getCurrentTime(),
+                category,
+                description,
+                shortDescription,
+                loggingHeader,
+                toStatus(status),
+                getBuildOperationId(),
+                buildOperationDescriptor == null ? null : buildOperationDescriptor.getOperationType());
+            listener.started(progressStartEvent);
         }
 
         public void progress(String status) {
             assertRunning();
-            listener.progress(new ProgressEvent(progressOperationId, timeProvider.getCurrentTime(), category, toStatus(status)));
+            listener.progress(new ProgressEvent(progressOperationId, timeProvider.getCurrentTime(), category, toStatus(status), getBuildOperationId()));
         }
 
         public void completed() {
@@ -159,19 +169,11 @@ public class DefaultProgressLoggerFactory implements ProgressLoggerFactory {
             assertRunning();
             state = State.completed;
             current.set(parent);
-            listener.completed(new ProgressCompleteEvent(progressOperationId, timeProvider.getCurrentTime(), category, description, toStatus(status)));
+            listener.completed(new ProgressCompleteEvent(progressOperationId, timeProvider.getCurrentTime(), category, description, toStatus(status), getBuildOperationId()));
         }
 
         private String toStatus(String status) {
             return status == null ? "" : status;
-        }
-
-        private CompactBuildOperationDescriptor createCompactDescriptor(BuildOperationDescriptor buildOperationDescriptor) {
-            if (buildOperationDescriptor == null) {
-                return null;
-            } else {
-                return new CompactBuildOperationDescriptor(buildOperationDescriptor.getId(), buildOperationDescriptor.getOperationType());
-            }
         }
 
         private void assertNotStarted() {
@@ -196,6 +198,10 @@ public class DefaultProgressLoggerFactory implements ProgressLoggerFactory {
             if (state != State.idle) {
                 throw new IllegalStateException(String.format("Cannot configure this operation (%s) once it has started.", this));
             }
+        }
+
+        private Object getBuildOperationId() {
+            return buildOperationDescriptor == null ? null : buildOperationDescriptor.getId();
         }
     }
 }

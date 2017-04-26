@@ -21,6 +21,7 @@ import org.gradle.internal.logging.events.OperationIdentifier
 import org.gradle.internal.logging.events.ProgressCompleteEvent
 import org.gradle.internal.logging.events.ProgressEvent
 import org.gradle.internal.logging.events.ProgressStartEvent
+import org.gradle.internal.progress.BuildOperationType
 import org.gradle.util.TextUtil
 import spock.lang.Specification
 
@@ -73,18 +74,20 @@ abstract class OutputSpecification extends Specification {
 
     ProgressStartEvent start(Map args) {
         OperationIdentifier parentId = args.containsKey("parentId") ? args.parentId : new OperationIdentifier(counter)
+        Object buildOperationId = args.containsKey("buildOperationId") ? args.buildOperationId : null
+        BuildOperationType buildOperationType = args.containsKey("buildOperationType") ? args.buildOperationType : null
         long id = ++counter
         String category = args.containsKey("category") ? args.category : CATEGORY
-        return new ProgressStartEvent(new OperationIdentifier(id), parentId, tenAm, category, args.description, args.shortDescription, args.loggingHeader, args.status, null)
+        return new ProgressStartEvent(new OperationIdentifier(id), parentId, tenAm, category, args.description, args.shortDescription, args.loggingHeader, args.status, buildOperationId, buildOperationType)
     }
 
-    ProgressEvent progress(String status) {
+    ProgressEvent progress(String status, Object buildOperationId = null) {
         long id = counter
-        return new ProgressEvent(new OperationIdentifier(id), tenAm, CATEGORY, status)
+        return new ProgressEvent(new OperationIdentifier(id), tenAm, CATEGORY, status, buildOperationId)
     }
 
-    ProgressCompleteEvent complete(String status) {
+    ProgressCompleteEvent complete(String status, Object buildOperationId = null) {
         long id = counter--
-        return new ProgressCompleteEvent(new OperationIdentifier(id), tenAm, CATEGORY, 'description', status)
+        return new ProgressCompleteEvent(new OperationIdentifier(id), tenAm, CATEGORY, 'description', status, buildOperationId)
     }
 }

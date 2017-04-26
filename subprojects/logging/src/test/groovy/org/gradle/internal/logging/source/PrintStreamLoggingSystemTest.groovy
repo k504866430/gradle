@@ -18,11 +18,9 @@ package org.gradle.internal.logging.source
 
 import org.gradle.api.logging.LogLevel
 import org.gradle.internal.logging.events.LogLevelChangeEvent
-import org.gradle.internal.logging.events.OperationIdentifier
 import org.gradle.internal.logging.events.OutputEventListener
 import org.gradle.internal.logging.events.StyledTextOutputEvent
 import org.gradle.internal.operations.BuildOperationIdentifierRegistry
-import org.gradle.internal.progress.BuildOperationType
 import org.gradle.internal.time.TimeProvider
 import org.gradle.util.TextUtil
 import spock.lang.Specification
@@ -72,8 +70,7 @@ class PrintStreamLoggingSystemTest extends Specification {
 
     def fillsInEventDetails() {
         given:
-        def operationIdentifier = new OperationIdentifier(42L)
-        BuildOperationIdentifierRegistry.setCurrentOperationIdentifier(operationIdentifier)
+        BuildOperationIdentifierRegistry.setCurrentOperationIdentifier(42L)
 
         when:
         loggingSystem.startCapture()
@@ -85,8 +82,7 @@ class PrintStreamLoggingSystemTest extends Specification {
                 it.category == 'category' &&
                 it.timestamp == 1200 &&
                 it.spans[0].text == withEOL('info') &&
-                it.buildOperationDescriptor.operationId == operationIdentifier &&
-                it.buildOperationDescriptor.operationType == BuildOperationType.UNCATEGORIZED
+                it.buildOperationId == 42L
         })
 
         cleanup:

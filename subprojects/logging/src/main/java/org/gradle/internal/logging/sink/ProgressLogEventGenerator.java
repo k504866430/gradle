@@ -18,7 +18,6 @@ package org.gradle.internal.logging.sink;
 
 import org.gradle.api.logging.LogLevel;
 import org.gradle.internal.SystemProperties;
-import org.gradle.internal.logging.events.CompactBuildOperationDescriptor;
 import org.gradle.internal.logging.events.OperationIdentifier;
 import org.gradle.internal.logging.events.OutputEvent;
 import org.gradle.internal.logging.events.OutputEventListener;
@@ -74,7 +73,7 @@ public class ProgressLogEventGenerator implements OutputEventListener {
 
     private void onComplete(ProgressCompleteEvent progressCompleteEvent) {
         assert !operations.isEmpty();
-        Operation operation = operations.remove(progressCompleteEvent.getOperationId());
+        Operation operation = operations.remove(progressCompleteEvent.getProgressOperationId());
 
         // Didn't find an operation with that id in the map
         if (operation == null) {
@@ -98,7 +97,7 @@ public class ProgressLogEventGenerator implements OutputEventListener {
     }
 
     private void onStart(ProgressStartEvent progressStartEvent) {
-        Operation operation = new Operation(progressStartEvent.getCategory(), progressStartEvent.getLoggingHeader(), progressStartEvent.getTimestamp(), progressStartEvent.getBuildOperationDescriptor());
+        Operation operation = new Operation(progressStartEvent.getCategory(), progressStartEvent.getLoggingHeader(), progressStartEvent.getTimestamp(), progressStartEvent.getBuildOperationId());
         operations.put(progressStartEvent.getProgressOperationId(), operation);
 
         if (!deferHeader || !(progressStartEvent.getLoggingHeader() != null && progressStartEvent.getLoggingHeader().equals(progressStartEvent.getShortDescription()))) {
@@ -109,29 +108,29 @@ public class ProgressLogEventGenerator implements OutputEventListener {
     enum State {None, HeaderStarted, HeaderCompleted, Completed}
 
     private class Operation {
+        private final Object buildOperationIdentifier;
         private final String category;
         private final String loggingHeader;
         private final long startTime;
         private final boolean hasLoggingHeader;
-        private final CompactBuildOperationDescriptor buildOperationDescriptor;
         private String status = "";
         private State state = State.None;
         private long completeTime;
 
-        private Operation(String category, String loggingHeader, long startTime, CompactBuildOperationDescriptor buildOperationDescriptor) {
+        private Operation(String category, String loggingHeader, long startTime, Object buildOperationIdentifier) {
             this.category = category;
             this.loggingHeader = loggingHeader;
             this.startTime = startTime;
             this.hasLoggingHeader = GUtil.isTrue(loggingHeader);
-            this.buildOperationDescriptor = buildOperationDescriptor;
+            this.buildOperationIdentifier = buildOperationIdentifier;
         }
 
         private StyledTextOutputEvent plainTextEvent(long timestamp, String text) {
-            return new StyledTextOutputEvent(timestamp, category, LogLevel.LIFECYCLE, buildOperationDescriptor, Collections.singletonList(new StyledTextOutputEvent.Span(text)));
+            return new StyledTextOutputEvent(timestamp, category, LogLevel.LIFECYCLE, buildOperationIdentifier, Collections.singletonList(new StyledTextOutputEvent.Span(text)));
         }
 
         private StyledTextOutputEvent styledTextEvent(long timestamp, StyledTextOutputEvent.Span... spans) {
-            return new StyledTextOutputEvent(timestamp, category, LogLevel.LIFECYCLE, buildOperationDescriptor, Arrays.asList(spans));
+            return new StyledTextOutputEvent(timestamp, category, LogLevel.LIFECYCLE, buildOperationIdentifier, Arrays.asList(spans));
         }
 
         private void doOutput(RenderableOutputEvent event) {

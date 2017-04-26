@@ -16,18 +16,21 @@
 
 package org.gradle.internal.logging.events;
 
+import org.gradle.api.Nullable;
 import org.gradle.api.logging.LogLevel;
 
 public class ProgressCompleteEvent extends CategorisedOutputEvent {
     private final String status;
     private final String description;
-    private OperationIdentifier operationId;
+    private OperationIdentifier progressOperationId;
+    private final Object buildOperationId;
 
-    public ProgressCompleteEvent(OperationIdentifier operationId, long timestamp, String category, String description, String status) {
+    public ProgressCompleteEvent(OperationIdentifier progressOperationId, long timestamp, String category, String description, String status, @Nullable Object buildOperationId) {
         super(timestamp, category, LogLevel.LIFECYCLE);
-        this.operationId = operationId;
+        this.progressOperationId = progressOperationId;
         this.status = status;
         this.description = description;
+        this.buildOperationId = buildOperationId;
     }
 
     public String getStatus() {
@@ -43,7 +46,12 @@ public class ProgressCompleteEvent extends CategorisedOutputEvent {
         return "ProgressComplete " + status;
     }
 
-    public OperationIdentifier getOperationId() {
-        return operationId;
+    public OperationIdentifier getProgressOperationId() {
+        return progressOperationId;
+    }
+
+    @Nullable
+    public Object getBuildOperationId() {
+        return buildOperationId;
     }
 }

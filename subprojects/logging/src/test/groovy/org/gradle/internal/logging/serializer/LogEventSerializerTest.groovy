@@ -17,7 +17,6 @@
 package org.gradle.internal.logging.serializer
 
 import org.gradle.api.logging.LogLevel
-import org.gradle.internal.logging.events.CompactBuildOperationDescriptor
 import org.gradle.internal.logging.events.LogEvent
 import org.gradle.internal.logging.events.OperationIdentifier
 import org.gradle.internal.serialize.BaseSerializerFactory
@@ -32,8 +31,7 @@ class LogEventSerializerTest extends LogSerializerSpec {
         BaseSerializerFactory serializerFactory = new BaseSerializerFactory()
         Serializer<LogLevel> logLevelSerializer = serializerFactory.getSerializerFor(LogLevel.class)
         Serializer<Throwable> throwableSerializer = serializerFactory.getSerializerFor(Throwable.class)
-        Serializer<CompactBuildOperationDescriptor> buildOperationDescriptorSerializer = serializerFactory.getSerializerFor(CompactBuildOperationDescriptor.class)
-        serializer = new LogEventSerializer(logLevelSerializer, throwableSerializer, buildOperationDescriptorSerializer)
+        serializer = new LogEventSerializer(logLevelSerializer, throwableSerializer)
     }
 
     def "can serialize LogEvent messages with failure and operation id"() {
@@ -50,7 +48,7 @@ class LogEventSerializerTest extends LogSerializerSpec {
         result.throwable.getClass() == event.throwable.getClass()
         result.throwable.message == event.throwable.message
         result.throwable.stackTrace == event.throwable.stackTrace
-        result.buildOperationDescriptor.operationId == new OperationIdentifier(42L)
+        result.buildOperationId == new OperationIdentifier(42L)
     }
 
     def "can serialize LogEvent messages"() {
@@ -65,6 +63,6 @@ class LogEventSerializerTest extends LogSerializerSpec {
         result.logLevel == LogLevel.LIFECYCLE
         result.message == MESSAGE
         result.throwable == null
-        result.buildOperationDescriptor == null
+        result.buildOperationId == null
     }
 }

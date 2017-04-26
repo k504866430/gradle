@@ -25,10 +25,16 @@ import org.gradle.internal.serialize.Serializer;
 public class ProgressEventSerializer implements Serializer<ProgressEvent> {
     @Override
     public void write(Encoder encoder, ProgressEvent event) throws Exception {
-        encoder.writeSmallLong(event.getOperationId().getId());
+        encoder.writeSmallLong(event.getProgressOperationId().getId());
         encoder.writeLong(event.getTimestamp());
         encoder.writeString(event.getCategory());
         encoder.writeString(event.getStatus());
+        if (event.getBuildOperationId() == null) {
+            encoder.writeBoolean(false);
+        } else {
+            encoder.writeBoolean(true);
+            encoder.writeSmallLong(((OperationIdentifier) event.getBuildOperationId()).getId());
+        }
     }
 
     @Override
@@ -37,6 +43,7 @@ public class ProgressEventSerializer implements Serializer<ProgressEvent> {
         long timestamp = decoder.readLong();
         String category = decoder.readString();
         String status = decoder.readString();
-        return new ProgressEvent(id, timestamp, category, status);
+        Object buildOperationId = decoder.readBoolean() ? new OperationIdentifier(decoder.readSmallLong()) : null;
+        return new ProgressEvent(id, timestamp, category, status, buildOperationId);
     }
 }
