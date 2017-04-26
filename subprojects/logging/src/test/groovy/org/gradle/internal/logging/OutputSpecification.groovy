@@ -81,13 +81,13 @@ abstract class OutputSpecification extends Specification {
         return new ProgressStartEvent(new OperationIdentifier(id), parentId, tenAm, category, args.description, args.shortDescription, args.loggingHeader, args.status, buildOperationId, buildOperationType)
     }
 
-    ProgressEvent progress(String status, Object buildOperationId = null) {
+    ProgressEvent progress(String status) {
         long id = counter
-        return new ProgressEvent(new OperationIdentifier(id), tenAm, CATEGORY, status, buildOperationId)
+        return new ProgressEvent(new OperationIdentifier(id), tenAm, CATEGORY, status)
     }
 
-    ProgressCompleteEvent complete(String status, Object buildOperationId = null) {
+    ProgressCompleteEvent complete(String status) {
         long id = counter--
-        return new ProgressCompleteEvent(new OperationIdentifier(id), tenAm, CATEGORY, 'description', status, buildOperationId)
+        return new ProgressCompleteEvent(new OperationIdentifier(id), tenAm, CATEGORY, 'description', status)
     }
 }

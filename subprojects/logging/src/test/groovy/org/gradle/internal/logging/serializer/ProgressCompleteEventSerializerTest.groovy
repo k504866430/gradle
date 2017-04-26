@@ -30,7 +30,7 @@ class ProgressCompleteEventSerializerTest extends LogSerializerSpec {
 
     def "can serialize ProgressCompleteEvent messages"() {
         given:
-        def event = new ProgressCompleteEvent(OPERATION_ID, TIMESTAMP, "category", DESCRIPTION, "status", new OperationIdentifier(42L))
+        def event = new ProgressCompleteEvent(OPERATION_ID, TIMESTAMP, "category", DESCRIPTION, "status")
 
         when:
         def result = serialize(event, serializer)
@@ -41,12 +41,11 @@ class ProgressCompleteEventSerializerTest extends LogSerializerSpec {
         result.timestamp == TIMESTAMP
         result.category == CATEGORY
         result.status == "status"
-        result.buildOperationId == new OperationIdentifier(42L)
     }
 
     def "can serialize ProgressCompleteEvent messages with empty fields"() {
         given:
-        def event = new ProgressCompleteEvent(OPERATION_ID, TIMESTAMP, "category", DESCRIPTION, "", null)
+        def event = new ProgressCompleteEvent(OPERATION_ID, TIMESTAMP, "category", DESCRIPTION, "")
 
         when:
         def result = serialize(event, serializer)
@@ -57,6 +56,5 @@ class ProgressCompleteEventSerializerTest extends LogSerializerSpec {
         result.timestamp == TIMESTAMP
         result.category == CATEGORY
         result.status == ""
-        result.buildOperationId == null
     }
 }

@@ -262,12 +262,12 @@ class ConsoleFunctionalTest extends Specification {
 
     ProgressEvent progressEvent(Long id, category='CATEGORY', status='STATUS') {
         long timestamp = timeProvider.currentTime
-        new ProgressEvent(new OperationIdentifier(id), timestamp, category, status, null)
+        new ProgressEvent(new OperationIdentifier(id), timestamp, category, status)
     }
 
     ProgressCompleteEvent completeEvent(Long id, category='CATEGORY', description='DESCRIPTION', status='STATUS') {
         long timestamp = timeProvider.currentTime
-        new ProgressCompleteEvent(new OperationIdentifier(id), timestamp, category, description, status, null)
+        new ProgressCompleteEvent(new OperationIdentifier(id), timestamp, category, description, status)
     }
 
     private ConsoleStub.TestableRedrawableLabel getStatusBar() {

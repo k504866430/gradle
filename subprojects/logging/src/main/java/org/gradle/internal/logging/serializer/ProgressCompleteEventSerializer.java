@@ -30,12 +30,6 @@ public class ProgressCompleteEventSerializer implements Serializer<ProgressCompl
         encoder.writeString(event.getCategory());
         encoder.writeString(event.getDescription());
         encoder.writeString(event.getStatus());
-        if (event.getBuildOperationId() == null) {
-            encoder.writeBoolean(false);
-        } else {
-            encoder.writeBoolean(true);
-            encoder.writeSmallLong(((OperationIdentifier) event.getBuildOperationId()).getId());
-        }
     }
 
     @Override
@@ -45,7 +39,6 @@ public class ProgressCompleteEventSerializer implements Serializer<ProgressCompl
         String category = decoder.readString();
         String description = decoder.readString();
         String status = decoder.readString();
-        Object buildOperationId = decoder.readBoolean() ? new OperationIdentifier(decoder.readSmallLong()) : null;
-        return new ProgressCompleteEvent(id, timestamp, category, description, status, buildOperationId);
+        return new ProgressCompleteEvent(id, timestamp, category, description, status);
     }
 }
