@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.gradle.configuration;
+package org.gradle.scripts;
 
 import org.gradle.api.Incubating;
-import org.gradle.api.Nullable;
 
 /**
- * A {@link ScriptPluginFactory} SPI.
+ * Scripting language provider SPI.
  *
- * The SPI implementation can get access to Gradle services via {@link javax.inject.Inject}
- * style dependency injection.
- *
- * @see ScriptPluginFactorySelector
- * @since 2.14
+ * @since 4.0
  */
 @Incubating
-public interface ScriptPluginFactoryProvider {
+public interface ScriptLanguage {
 
     /**
-     * Returns a {@link ScriptPluginFactory} suitable for creating a {@link ScriptPlugin}
-     * instances for files with the given name, otherwise {@code null}.
+     * Returns the file extension for scripts written in this script language.
      */
-    @Nullable
-    ScriptPluginFactory getFor(String fileName);
+    String getExtension();
+
+    /**
+     * Returns the fully qualified class name of the {@link org.gradle.configuration.ScriptPluginFactory} provider for this script language.
+     *
+     * Implementations can benefit from injection using {@link javax.inject.Inject}.
+     */
+    String getProvider();
+
 }

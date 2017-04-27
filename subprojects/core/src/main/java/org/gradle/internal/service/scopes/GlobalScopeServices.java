@@ -94,6 +94,8 @@ import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.remote.MessagingServer;
 import org.gradle.internal.remote.internal.inet.InetAddressFactory;
 import org.gradle.internal.remote.services.MessagingServices;
+import org.gradle.internal.scripts.DefaultScriptLanguages;
+import org.gradle.internal.scripts.ScriptLanguages;
 import org.gradle.internal.service.CachingServiceLocator;
 import org.gradle.internal.service.DefaultServiceLocator;
 import org.gradle.internal.service.ServiceRegistration;
@@ -374,5 +376,9 @@ public class GlobalScopeServices {
 
     ProviderFactory createProviderFactory() {
         return new DefaultProviderFactory();
+    }
+
+    ScriptLanguages createScriptLanguages() {
+        return new DefaultScriptLanguages();
     }
 }
