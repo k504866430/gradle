@@ -24,7 +24,6 @@ import org.gradle.api.internal.ClassPathRegistry;
 import org.gradle.api.internal.DefaultClassPathProvider;
 import org.gradle.api.internal.DefaultClassPathRegistry;
 import org.gradle.api.internal.DependencyClassPathProvider;
-import org.gradle.api.internal.DependencyInjectingServiceLoader;
 import org.gradle.api.internal.DocumentationRegistry;
 import org.gradle.api.internal.ExceptionAnalyser;
 import org.gradle.api.internal.InstantiatorFactory;
@@ -293,8 +292,7 @@ public class BuildScopeServices extends DefaultServiceRegistry {
     protected ScriptPluginFactory createScriptPluginFactory(ScriptLanguages scriptLanguages, InstantiatorFactory instantiatorFactory, BuildOperationExecutor buildOperationExecutor) {
         DefaultScriptPluginFactory defaultScriptPluginFactory = defaultScriptPluginFactory();
         ScriptPluginFactorySelector.ProviderInstantiator instantiator = new ScriptPluginFactorySelector.DefaultProviderInstantiator(instantiatorFactory.inject(this));
-        DependencyInjectingServiceLoader serviceLoader = new DependencyInjectingServiceLoader(this);
-        ScriptPluginFactorySelector scriptPluginFactorySelector = new ScriptPluginFactorySelector(defaultScriptPluginFactory, scriptLanguages, instantiator, serviceLoader, buildOperationExecutor);
+        ScriptPluginFactorySelector scriptPluginFactorySelector = new ScriptPluginFactorySelector(defaultScriptPluginFactory, scriptLanguages, instantiator, buildOperationExecutor);
         defaultScriptPluginFactory.setScriptPluginFactory(scriptPluginFactorySelector);
         return scriptPluginFactorySelector;
     }
