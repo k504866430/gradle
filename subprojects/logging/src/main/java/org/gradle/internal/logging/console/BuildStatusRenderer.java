@@ -82,6 +82,7 @@ public class BuildStatusRenderer extends BatchOutputEventListener {
         if (event instanceof ProgressStartEvent) {
             ProgressStartEvent startEvent = (ProgressStartEvent) event;
             // if it has no parent ID, assign this operation as the root operation
+            // TODO(ew): consider how we can leverage build operation ids here
             if (startEvent.getParentProgressOperationId() == null && BUILD_PROGRESS_CATEGORY.equals(startEvent.getCategory())) {
                 rootOperationId = startEvent.getProgressOperationId();
                 buildStarted(startEvent);
