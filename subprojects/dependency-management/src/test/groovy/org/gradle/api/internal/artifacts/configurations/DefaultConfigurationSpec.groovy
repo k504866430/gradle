@@ -43,6 +43,7 @@ import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDepen
 import org.gradle.api.internal.artifacts.dsl.dependencies.ProjectFinder
 import org.gradle.api.internal.artifacts.ivyservice.moduleconverter.ConfigurationComponentMetaDataBuilder
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ArtifactVisitor
+import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.BuildDependenciesVisitor
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.SelectedArtifactSet
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.VisitedArtifactSet
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.projectresult.ResolvedLocalComponentsResult
@@ -534,7 +535,7 @@ class DefaultConfigurationSpec extends Specification {
 
         given:
         _ * visitedArtifactSet.select(_, _ , _, _) >> selectedArtifactSet
-        _ * selectedArtifactSet.collectBuildDependencies(_) >> { it[0].add(artifactTaskDependencies); return it[0] }
+        _ * selectedArtifactSet.collectBuildDependencies(_) >> { BuildDependenciesVisitor visitor -> visitor.visitDependency(artifactTaskDependencies) }
         _ * artifactTaskDependencies.getDependencies(_) >> requiredTasks
 
         and:
